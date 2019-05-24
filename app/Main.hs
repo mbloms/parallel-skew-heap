@@ -14,9 +14,9 @@ merge Empty t2 = t2
 merge t1 Empty = t1
 merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2)
     | x1 <= x2  =   let r = (t2 `merge` r1)
-                    in  (peak r) `par` (peak l1) `pseq` Node x1 r l1
+                    in  (peak r) `par` Node x1 r l1
     | otherwise =   let r = (t1 `merge` r2)
-                    in  (peak r) `par` (peak l2) `pseq` Node x2 r l2
+                    in  (peak r) `par` Node x2 r l2
 
 insert :: Ord a => a -> SkewHeap a -> SkewHeap a
 insert x heap = singleton x `merge` heap
