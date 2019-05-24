@@ -38,5 +38,5 @@ heapsort = unfoldr pop . foldl' (flip insert) Empty
 
 main = do
     rng <- getStdGen
-    let list = take 100000 $ randoms rng :: [Int]
+    let list = take 2500000 $ randoms rng :: [Int]
     print $ last $ heapsort list

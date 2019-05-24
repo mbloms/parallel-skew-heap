@@ -7,3 +7,6 @@ tutorial-exe.eventlog: $(EXE)
 
 $(EXE): app/Main.hs
 	stack build --force-dirty --ghc-options="-O2 -threaded -rtsopts -eventlog -feager-blackholing"
+
+unlimited:
+	ulimit -Sv unlimited
