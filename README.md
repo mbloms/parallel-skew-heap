@@ -38,6 +38,11 @@ and also *Empty* and *singleton* for construction.
 
 Merge is the most important function. It merges two skew heaps into a single one.
 All other functions are implemented in terms of merge.
+We'll get back to how it's implemented.
+
+```haskell
+merge :: Ord a => SkewHeap a -> SkewHeap a -> SkewHeap a
+```
 
 Worst case: *O(n)*
 Amortized: *O(log n)*
@@ -77,17 +82,48 @@ Amortized: *O(log n)*
 As seen above, all operations have a simple and straight forward implementation.
 Except for `peak`, all operations are implemented in terms of `merge`.
 `merge` is a bit harder.
-It's implemented by taking the largest of two heaps 
+
+It's implemented by taking the largest of two heaps and merging it recursively
+into the smaller heaps right subtree.
+
+The base cases are easiest:
+
+```haskell
+merge Empty t2 = t2
+merge t1 Empty = t1
+```
+
+Merging the larger heap into the smallers right subtree looks like this:
+
+```haskell
+merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2)
+    | x1 <= x2  = Node x1 l1 (t2 `merge` r1)
+    | otherwise = Node x2 l2 (t1 `merge` r2)
+```
+
+Doing this makes the right path at least one element longer.
+To mitigate this, the subtrees of the new heap is swapped so that the next time
+an operation inserts elements into the heap, it will be into the other subtree,
+keeping it balanced.
+
+```haskell
+merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2)
+    | x1 <= x2  = Node x1 (t2 `merge` r1) l1
+    | otherwise = Node x2 (t1 `merge` r2) l2
+```
+
+Putting it all together we get this:
 
 ```haskell
 merge :: Ord a => SkewHeap a -> SkewHeap a -> SkewHeap a
 merge Empty t2 = t2
 merge t1 Empty = t1
 merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2)
-    | x1 <= x2  =   let r = (t2 `merge` r1) in (peak r) `par` Node x1 r l1
-    | otherwise =   let r = (t1 `merge` r2) in (peak r) `par` Node x2 r l2
+    | x1 <= x2  = Node x1 (t2 `merge` r1) l1
+    | otherwise = Node x2 (t1 `merge` r2) l2
 ```
 
+### Paralellizing
 
 
 ## Method
