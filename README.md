@@ -199,10 +199,6 @@ to 13.73s for our new paralell version.
 The benchmarking was done by heapsorting 2500000 elements and
 evaluating the last one.
 
-## Method
-1. Implement a skew sequential heap in Haskell
-2. Implement a parallel skew heap in Haskell, either by Strategies
-or par/pseq
-3. Use Threadscope to benchmark the two data structures when they both do a
-heap sort with a large amount of random numbers.
-4. Measure the speedup and reflect on it.
+eventlogs:
+* sequential.eventlog
+* par-right.eventlog
