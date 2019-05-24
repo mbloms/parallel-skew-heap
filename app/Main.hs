@@ -39,4 +39,4 @@ heapsort = unfoldr pop . foldl' (flip insert) Empty
 main = do
     rng <- getStdGen
     let list = take 2500000 $ randoms rng :: [Int]
-    print $ last $ heapsort list
+    print $ (!! (2500000 `div` 2)) $ heapsort list
