@@ -125,6 +125,79 @@ merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2)
 
 ### Paralellizing
 
+One intresting observation is that merge never touches the left subtree,
+it only promotes it to the new right subtree.
+
+Inserting 8 into the following tree will insert it along the
+right path and then shift the elements:
+
+          1
+        /   \
+      2       3
+     / \     / \
+    4   5   6   7
+
+After insertion:
+
+          1
+        /   \
+      2       3
+     / \     / \
+    4   5   6   7
+                 \
+                  8
+
+After swapping:
+
+            1
+          /   \      
+        3       2     
+       / \     / \    
+      7   6   4   5   
+     /              
+    8
+
+If we only look at the third "level" of subtrees it's easy to
+see that it takes at least 4 merge operations before a
+subtree comes back to the right path, where all the action happen.
+
+If we start merging of a subtree at level n in paralell,
+it will take at least 2^(n-1) operations before we need the result
+of that merge. Making sure that every call to merge is evaluated
+in paralell is therefore a quite good optimization.
+
+Using the `par` function from *Control.Parallel*, we can do this quite
+simply by writing:
+
+```haskell
+merge :: Ord a => SkewHeap a -> SkewHeap a -> SkewHeap a
+merge Empty t2 = t2
+merge t1 Empty = t1
+merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2)
+    | x1 <= x2  =   let r = (t2 `merge` r1) in (peak r) `par` Node x1 r l1
+    | otherwise =   let r = (t1 `merge` r2) in (peak r) `par` Node x2 r l2
+```
+
+`(peak r)` will force evalutaion of the recursive call to merge.
+```(peak r) `par` Node x1 r l1``` will make sure that evaluation of
+the recursive call is started in paralell before returning.
+
+### Bench
+
+Running this on three threads on a laptop with the following specs:
+
+* OS: Manjaro 18.0.4 Illyria
+* Kernel: x86_64 Linux 5.0.9-2-MANJARO
+* Shell: fish 3.0.2
+* CPU: Intel Core i5-5200U @ 4x 2.7GHz [68.0°C]
+* GPU: Mesa DRI Intel(R) HD Graphics 5500 (Broadwell GT2)
+* RAM: 11707MiB
+
+...we can see a speedup from 24.25s for the sequential version
+to 13.73s for our new paralell version.
+
+The benchmarking was done by heapsorting 2500000 elements and
+evaluating the last one.
 
 ## Method
 1. Implement a skew sequential heap in Haskell
