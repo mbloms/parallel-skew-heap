@@ -16,6 +16,17 @@ or merge operation could be evaluated in parallel before a previous one
 finishes. This gives huge potential for parallelizing.
 
 
+
+A Skew Heap manges to be efficient and have a relatively simple
+implementation by allowing it's operations (except for find-min)
+to have a worst case time complexity of *O(n)*.
+
+The probability that an operation will take that long is however,
+quite small, and the real magick is that if a worst case would turn up,
+the skew heap compensates by making the next operation blazingly fast.
+
+
+
 ## Method
 1. Implement a skew sequential heap in Haskell
 2. Implement a parallel skew heap in Haskell, either by Strategies
