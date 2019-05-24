@@ -24,6 +24,8 @@ to have a worst case time complexity of *O(n)*.
 The probability that an operation will take that long is however,
 quite small, and the real magick is that if a worst case would turn up,
 the skew heap compensates by making the next operation blazingly fast.
+On average, all operations run in logarithmic time, exept for find-min,
+which is always constant.
 
 Our skew heap implementation supports the following operations:
 
@@ -37,12 +39,56 @@ and also *Empty* and *singleton* for construction.
 Merge is the most important function. It merges two skew heaps into a single one.
 All other functions are implemented in terms of merge.
 
+Worst case: *O(n)*
+Amortized: *O(log n)*
+
 `insert` inserts a single element into a skew heap. It's implementation is simply:
 
 ```haskell
 insert :: Ord a => a -> SkewHeap a -> SkewHeap a
 insert x heap = singleton x `merge` heap
 ```
+
+Worst case: *O(n)*
+Amortized: *O(log n)*
+
+`peak` returns the top (smallest) element in the heap.
+
+```haskell
+peak :: Ord a => SkewHeap a -> Maybe a
+peak (Node x _ _) = Just x
+peak Empty = Nothing
+```
+
+Worst case: *O(1)*
+
+`delete_min` removes the top element from the heap and merges
+the two subtrees to generate a new heap
+
+```haskell
+delete_min :: Ord a => SkewHeap a -> Maybe (SkewHeap a)
+delete_min (Node _ l r) = Just $ merge l r
+delete_min Empty = Nothing
+```
+
+Worst case: *O(n)*
+Amortized: *O(log n)*
+
+As seen above, all operations have a simple and straight forward implementation.
+Except for `peak`, all operations are implemented in terms of `merge`.
+`merge` is a bit harder.
+It's implemented by taking the largest of two heaps 
+
+```haskell
+merge :: Ord a => SkewHeap a -> SkewHeap a -> SkewHeap a
+merge Empty t2 = t2
+merge t1 Empty = t1
+merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2)
+    | x1 <= x2  =   let r = (t2 `merge` r1) in (peak r) `par` Node x1 r l1
+    | otherwise =   let r = (t1 `merge` r2) in (peak r) `par` Node x2 r l2
+```
+
+
 
 ## Method
 1. Implement a skew sequential heap in Haskell
