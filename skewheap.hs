@@ -1,5 +1,6 @@
 import Control.Parallel
 import Data.List (foldl', unfoldr)
+import System.Random
 
 data SkewHeap a = Empty
                 | Node a (SkewHeap a) (SkewHeap a)
@@ -35,3 +36,7 @@ pop heap = do
 heapsort :: Ord a => [a] -> [a]
 heapsort = unfoldr pop . foldl' (flip insert) Empty
 
+main = do
+    rng <- getStdGen
+    let list = take 100000 $ randoms rng :: [Int]
+    print $ last $ heapsort list
