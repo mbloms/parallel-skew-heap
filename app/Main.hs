@@ -12,9 +12,10 @@ singleton x = Node x Empty Empty
 merge :: Ord a => SkewHeap a -> SkewHeap a -> SkewHeap a
 merge Empty t2 = t2
 merge t1 Empty = t1
-merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2)
-    | x1 <= x2  = l1 `par` x1 `pseq` Node x1 (t2 `par` r1 `pseq` t2 `merge` r1) l1
-    | otherwise = l2 `par` x2 `pseq` Node x2 (t1 `par` r2 `pseq` t1 `merge` r2) l2
+merge t1@(Node x1 l1 r1) t2@(Node x2 l2 r2) =
+    r1 `par` r2 `pseq` x1 `pseq` x2 `pseq` case x1 <= x2 of
+        True  -> (peak l1) `par` Node x1 (t2 `merge` r1) l1
+        False -> (peak l2) `par` Node x2 (t1 `merge` r2) l2
 
 insert :: Ord a => a -> SkewHeap a -> SkewHeap a
 insert x heap = singleton x `merge` heap
