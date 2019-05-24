@@ -25,7 +25,24 @@ The probability that an operation will take that long is however,
 quite small, and the real magick is that if a worst case would turn up,
 the skew heap compensates by making the next operation blazingly fast.
 
+Our skew heap implementation supports the following operations:
 
+* merge
+* insert
+* peak (find-min)
+* delete_min
+
+and also *Empty* and *singleton* for construction.
+
+Merge is the most important function. It merges two skew heaps into a single one.
+All other functions are implemented in terms of merge.
+
+`insert` inserts a single element into a skew heap. It's implementation is simply:
+
+```haskell
+insert :: Ord a => a -> SkewHeap a -> SkewHeap a
+insert x heap = singleton x `merge` heap
+```
 
 ## Method
 1. Implement a skew sequential heap in Haskell
