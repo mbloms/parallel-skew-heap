@@ -18,7 +18,7 @@ $(EXE): app/Main.hs src
 
 # Få stack att sluta klaga på att src inte finns:
 src:
-	mkdir src
+	mkdir -p src
 
 unlimited:
 	ulimit -Sv unlimited
